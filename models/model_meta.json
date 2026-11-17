@@ -1,0 +1,15 @@
+{
+ "architecture": "ResNet9",
+ "img_size": 96,
+ "num_classes": 38,
+ "epochs": 5,
+ "batch_size": 32,
+ "max_lr": 0.005,
+ "optimizer": "Adam + OneCycleLR, grad-clip 0.1, weight-decay 1e-4",
+ "n_train": 4560,
+ "n_val": 950,
+ "val_accuracy": 0.9221052527427673,
+ "dataset": "PlantVillage (raw/color subset)",
+ "trained_on": "2026-11-12",
+ "parameters": 6589734
+}

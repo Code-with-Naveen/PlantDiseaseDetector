@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}About · Plant Disease Detector{% endblock %}
+{% block content %}
+<div class="page-head"><h1>About this project</h1></div>
+<div class="grid two" style="margin-bottom:20px">
+  <div class="card">
+    <h2>The problem</h2>
+    <p>Crop diseases cause major yield losses, and early identification is hard without an expert. This app lets anyone
+      photograph a leaf and instantly get a likely diagnosis, a heatmap of what the AI focused on, and practical advice.</p>
+    <h2>How it works</h2>
+    <ol>
+      <li>You upload a leaf photo; it is validated and resized.</li>
+      <li>A <strong>ResNet9</strong> convolutional neural network (PyTorch) classifies it into one of {{ crops.values()|map('length')|sum }} classes.</li>
+      <li><strong>Grad-CAM</strong> highlights the regions that influenced the decision.</li>
+      <li>Results are stored in a local <strong>SQLite</strong> database and shown in History and Dashboard.</li>
+    </ol>
+    <h2>Tips for best results</h2>
+    <ul class="tips">
+      <li>Photograph a <strong>single leaf</strong>, filling most of the frame.</li>
+      <li>Use good natural light, avoid heavy shadows and blur.</li>
+      <li>A plain background works best — the training images have one.</li>
+    </ul>
+    <div class="alert warn" style="margin-bottom:0"><strong>Limitations.</strong> The model only knows the crops listed here, was trained on
+      studio-style photos, and can be over-confident on unrelated images. Treat results as guidance, not a laboratory diagnosis.</div>
+  </div>
+  <div class="card">
+    <h2>Supported crops &amp; conditions</h2>
+    {% for plant, conds in crops.items() %}
+      <p style="margin:.6rem 0 .1rem"><strong>{{ plant }}</strong></p>
+      <div class="chips">{% for c in conds %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

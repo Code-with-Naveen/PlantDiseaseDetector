@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Model · Plant Disease Detector{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Model information</h1>
+  <p>How the classifier was built and how well it performs on images it never saw during training.</p></div>
+
+<div class="grid four" style="margin-bottom:20px">
+  <div class="card stat"><div class="num">{% if meta.val_accuracy is defined %}{{ '%.1f'|format(meta.val_accuracy * 100) }}%{% else %}—{% endif %}</div><div class="lbl">Validation accuracy</div></div>
+  <div class="card stat"><div class="num">{{ meta.num_classes or '38' }}</div><div class="lbl">Classes</div></div>
+  <div class="card stat"><div class="num">{{ meta.img_size or '—' }}px</div><div class="lbl">Input size</div></div>
+  <div class="card stat"><div class="num">{% if meta.parameters %}{{ '%.1f'|format(meta.parameters / 1e6) }}M{% else %}—{% endif %}</div><div class="lbl">Parameters</div></div>
+</div>
+
+<div class="grid two" style="margin-bottom:20px">
+  <div class="card">
+    <h2>Details</h2>
+    <table>
+      <tr><th>Architecture</th><td>{{ meta.architecture or 'ResNet9' }} (residual CNN)</td></tr>
+      <tr><th>Dataset</th><td>{{ meta.dataset or 'PlantVillage' }}</td></tr>
+      <tr><th>Training / validation images</th><td>{{ meta.n_train or '—' }} / {{ meta.n_val or '—' }}</td></tr>
+      <tr><th>Epochs · batch size</th><td>{{ meta.epochs or '—' }} · {{ meta.batch_size or '—' }}</td></tr>
+      <tr><th>Optimiser</th><td>{{ meta.optimizer or '—' }}</td></tr>
+      <tr><th>Trained on</th><td>{{ meta.trained_on or '—' }}</td></tr>
+      {% if meta.weights_source %}<tr><th>Weights in use</th><td>{{ meta.weights_source }}</td></tr>{% endif %}
+    </table>
+    <div class="alert info" style="margin-bottom:0">Want higher accuracy? Re-train on the full dataset with
+      <code>training\train.py</code> — see the README, or drop the notebook's <code>plant-disease-model.pth</code> into the
+      <code>models</code> folder and restart.</div>
+  </div>
+  <div class="card"><h2>Training curves</h2>
+    {% if history %}<div class="chart-box"><canvas id="c-train"></canvas></div>{% else %}<div class="empty">No training history found.</div>{% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>Per-class performance (validation set)</h2>
+  {% if classes %}
+  <div class="chart-box" style="height:520px"><canvas id="c-class"></canvas></div>
+  <details style="margin-top:14px"><summary>Show table</summary>
+    <div class="table-wrap"><table><thead><tr><th>Class</th><th>Images</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody>
+    {% for c in classes %}<tr><td>{{ c.name.replace('___', ' — ').replace('_', ' ') }}</td><td>{{ c.support }}</td>
+      <td>{{ '%.1f'|format(c.precision * 100) }}%</td><td>{{ '%.1f'|format(c.recall * 100) }}%</td><td>{{ '%.1f'|format(c.f1 * 100) }}%</td></tr>{% endfor %}
+    </tbody></table></div></details>
+  {% else %}<div class="empty">No per-class metrics found.</div>{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chart.umd.js') }}"></script>
+<script>
+const HISTORY = {{ history|tojson }};
+const CLASSES = {{ classes|tojson }};
+(function () {
+  const opts = { responsive: true, maintainAspectRatio: false };
+  if (HISTORY.length) {
+    new Chart(document.getElementById("c-train"), { type: "line", data: { labels: HISTORY.map(h => "Epoch " + h.epoch),
+      datasets: [
+        { label: "Train loss", data: HISTORY.map(h => h.train_loss), borderColor: "#3b82f6", tension: .3, yAxisID: "y" },
+        { label: "Validation loss", data: HISTORY.map(h => h.val_loss), borderColor: "#ef4444", tension: .3, yAxisID: "y" },
+        { label: "Validation accuracy", data: HISTORY.map(h => h.val_acc), borderColor: "#16a34a", borderDash: [6, 4], tension: .3, yAxisID: "y2" }] },
+      options: { ...opts, scales: { y: { beginAtZero: true, title: { display: true, text: "Loss" } },
+        y2: { position: "right", min: 0, max: 1, grid: { drawOnChartArea: false }, title: { display: true, text: "Accuracy" } } } } });
+  }
+  if (CLASSES.length) {
+    const sorted = [...CLASSES].sort((a, b) => a.recall - b.recall);
+    new Chart(document.getElementById("c-class"), { type: "bar", data: {
+      labels: sorted.map(c => c.name.replace("___", " — ").replace(/_/g, " ")),
+      datasets: [{ label: "Recall (%)", data: sorted.map(c => +(c.recall * 100).toFixed(1)), backgroundColor: sorted.map(c => c.recall < .8 ? "#f59e0b" : "#16a34a") }] },
+      options: { ...opts, indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100 }, y: { ticks: { font: { size: 10 }, autoSkip: false } } } } });
+  }
+})();
+</script>
+{% endblock %}

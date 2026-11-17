@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Plant Disease Detector{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-max-mb="{{ max_upload_mb }}" data-max-batch="{{ max_batch }}">
+<header class="topbar">
+  <div class="container">
+    <a class="brand" href="{{ url_for('main.index') }}"><span class="logo">🌿</span> Plant Disease Detector</a>
+    <nav class="nav">
+      <a href="{{ url_for('main.index') }}" class="{{ 'active' if page == 'detect' }}">Detect</a>
+      <a href="{{ url_for('main.batch_page') }}" class="{{ 'active' if page == 'batch' }}">Batch</a>
+      <a href="{{ url_for('main.history_page') }}" class="{{ 'active' if page == 'history' }}">History</a>
+      <a href="{{ url_for('main.dashboard_page') }}" class="{{ 'active' if page == 'dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('main.model_page') }}" class="{{ 'active' if page == 'model' }}">Model</a>
+      <a href="{{ url_for('main.about_page') }}" class="{{ 'active' if page == 'about' }}">About</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="container">
+    {% if not model_ready %}
+    <div class="alert error"><strong>The AI model could not be loaded.</strong>
+      Make sure the <code>models</code> folder contains <code>plant_disease_resnet9.pth</code> and
+      <code>class_names.json</code>, then restart the app. Predictions are disabled until then.</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+<footer>Runs 100% locally on your computer — your images never leave this machine.</footer>
+<div id="toast"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

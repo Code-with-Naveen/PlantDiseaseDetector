@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}History · Plant Disease Detector{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Prediction history</h1>
+  <p>Every analysis is stored locally in a SQLite database on this computer.</p></div>
+<div class="card">
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search file, plant or disease…">
+    <select id="plant"><option value="">All plants</option>
+      {% for p in plants %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select>
+    <select id="status"><option value="">All results</option><option value="diseased">Diseased</option><option value="healthy">Healthy</option></select>
+    <span class="spacer"></span>
+    <a class="btn secondary small" href="/api/history/export.csv">⬇ Export CSV</a>
+    <button class="btn danger small" id="clear-btn">🗑 Clear all</button>
+  </div>
+  <div id="history-body"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+</div>
+
+<div class="card" id="detail" style="margin-top:20px" hidden>
+  <div style="display:flex; justify-content:space-between; align-items:center"><h2 style="margin:0">Details</h2>
+    <button class="btn secondary small" id="close-detail">Close</button></div>
+  <div id="detail-body" style="margin-top:10px"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/history.js') }}"></script>{% endblock %}

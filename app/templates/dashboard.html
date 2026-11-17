@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Plant Disease Detector{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Dashboard</h1><p>Summary of everything analysed on this computer.</p></div>
+<div id="dash"><div class="loading"><span class="spinner"></span> Loading…</div></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

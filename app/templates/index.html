@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+  <h1>Diagnose a plant leaf in seconds</h1>
+  <p>Upload a photo of a leaf. The AI identifies the crop, tells you if it is healthy or diseased, and suggests what to do next.</p>
+</div>
+
+<div class="grid two" style="align-items:start">
+  <div class="grid">
+    <div class="card">
+      <h2>1. Upload a leaf photo</h2>
+      <div class="dropzone" id="dropzone" tabindex="0">
+        <div id="dz-empty">
+          <div class="icon">📷</div>
+          <strong>Drag &amp; drop an image here</strong><br>
+          <span class="hint">or click to browse · JPG, PNG, BMP, WEBP · up to {{ max_upload_mb }} MB</span>
+        </div>
+        <div id="dz-preview" hidden>
+          <img class="preview" id="preview-img" alt="Preview">
+          <span class="hint" id="preview-name"></span>
+        </div>
+        <input type="file" id="file-input" accept="image/*" hidden>
+      </div>
+      <div id="form-error"></div>
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
+        <button class="btn" id="analyse-btn" disabled>🔍 Analyse leaf</button>
+        <button class="btn secondary" id="reset-btn" hidden>Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>No photo handy? Try a sample</h2>
+      <p class="muted" style="margin-top:0">Click any sample leaf to analyse it instantly.</p>
+      <div class="samples" id="samples"><div class="loading"><span class="spinner"></span> Loading samples…</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="result-card">
+    <h2>2. Result</h2>
+    <div id="result"><div class="empty"><div class="icon">🌱</div>Your analysis will appear here.</div></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/detect.js') }}"></script>{% endblock %}
